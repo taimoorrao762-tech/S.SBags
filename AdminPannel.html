@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Suite | S.S BAGS School Bags</title>
+    <!-- Google Fonts: Outfit for a premium feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="AdminPannel.css">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <div class="top-banner">
+        <i data-feather="monitor"></i> Professional Admin Suite | <span>S.S BAGS School Bags</span> <i data-feather="shield"></i>
+    </div>
+    
+    <!-- Login Section -->
+    <section id="login-section" class="login-container">
+        <div class="login-box">
+            <img src="Images/logo.jpg" alt="S.S BAGS Logo" class="auth-logo">
+            <h2>Welcome Back</h2>
+            <p>Securely manage your school bags store</p>
+            
+            <div id="login-error" class="error-message"></div>
+            
+            <div class="input-group">
+                <i data-feather="mail" class="input-icon"></i>
+                <input type="email" id="admin-email" placeholder="Admin Email" autocomplete="email">
+            </div>
+            
+            <div class="input-group">
+                <i data-feather="lock" class="input-icon"></i>
+                <input type="password" id="admin-password" placeholder="Password" autocomplete="current-password">
+            </div>
+            
+            <button id="login-btn" onclick="adminLogin()" class="auth-btn">Authorize & Login</button>
+        </div>
+    </section>
+
+    <!-- Admin Section -->
+    <section id="admin-section" style="display:none;">
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <img src="Images/logo.jpg" alt="S.S BAGS" class="logo-img">
+                    <span>Admin Suite</span>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="showAdminSection('dashboard', event)" class="active menu-item">Dashboard</a></li>
+                    <li><a href="#" onclick="showAdminSection('products', event)" class="menu-item">Products</a></li>
+                    <li><a href="#" onclick="showAdminSection('orders', event)" class="menu-item">Orders</a></li>
+                    <li><a href="#" onclick="showAdminSection('customers', event)" class="menu-item">Customers</a></li>
+                    <li><a href="#" onclick="adminLogout()" class="logout-link"><i data-feather="log-out"></i></a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="container">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-section active">
+                <div class="page-header">
+                    <h1>Store Intelligence</h1>
+                    <p>Real-time analytics and performance metrics for S.S BAGS</p>
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-feather="users"></i></div>
+                        <div class="feature-content">
+                            <h4>Active Users</h4>
+                            <p id="stat-users">0</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-feather="package"></i></div>
+                        <div class="feature-content">
+                            <h4>Total SKU</h4>
+                            <p id="stat-products">0</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-feather="shopping-cart"></i></div>
+                        <div class="feature-content">
+                            <h4>Processed Orders</h4>
+                            <p id="stat-orders">0</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-feather="dollar-sign"></i></div>
+                        <div class="feature-content">
+                            <h4>Gross Revenue</h4>
+                            <p id="stat-sales">Rs. 0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-title-wrap">
+                    <h2>Recent Activity</h2>
+                    <div class="divider"></div>
+                </div>
+                <div id="recent-orders-list"></div>
+            </div>
+
+            <!-- Products Tab -->
+            <div id="products" class="tab-section">
+                <div class="page-header">
+                    <h1>Catalog Management</h1>
+                    <p>Curate and optimize your school bag collections</p>
+                </div>
+                
+                <div class="toolbar">
+                    <button onclick="toggleProductForm()" class="btn btn-primary"><i data-feather="plus"></i> Add Bag</button>
+                </div>
+
+                <div id="product-form" class="form-section glass-box" style="display:none; margin-top: 20px; padding: 24px; background: white; border-radius: 16px; border: 1px solid var(--border);">
+                    <h3>Product Registry</h3>
+                    <input type="hidden" id="product-id">
+                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                        <input type="text" id="product-name" placeholder="Bag Name" class="form-input" style="padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                        <input type="number" id="product-price" placeholder="Retail Price (Rs.)" class="form-input" style="padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                        <input type="number" id="product-stock" placeholder="Inventory Level" class="form-input" style="padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                        <select id="product-category" class="form-input" style="padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                            <option value="">Select Category</option>
+                        </select>
+                        <input type="text" id="product-color" placeholder="Primary Color" class="form-input" style="padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                        <input type="text" id="product-material" placeholder="Material Blend" class="form-input" style="padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                    </div>
+                    <textarea id="product-description" placeholder="Product Description" style="width: 100%; margin-top: 16px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); min-height: 100px;"></textarea>
+                    
+                    <div class="upload-area" style="margin-top: 16px; padding: 20px; border: 2px dashed var(--border); border-radius: 12px; text-align: center;">
+                        <input type="file" id="product-images" accept="image/*" multiple style="display:none;">
+                        <label for="product-images" style="cursor:pointer; color: var(--secondary); font-weight: 600;">Click to upload product visuals (Max 5)</label>
+                        <div id="image-preview-container" class="preview-grid" style="display: flex; gap: 10px; margin-top: 10px; justify-content: center;"></div>
+                    </div>
+                    
+                    <div class="form-actions" style="margin-top: 24px;">
+                        <button onclick="saveProduct()" class="btn btn-primary">Publish Product</button>
+                        <button onclick="toggleProductForm()" class="btn">Discard</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="overflow-x: auto; margin-top: 24px;">
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Ref ID</th>
+                                <th>Product Details</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Orders Tab -->
+            <div id="orders" class="tab-section">
+                <div class="page-header">
+                    <h1>Order Control</h1>
+                    <p>Monitor and fulfill customer requirements</p>
+                </div>
+                <div class="table-responsive" style="overflow-x: auto;">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer</th>
+                                <th>Grand Total</th>
+                                <th>Current Status</th>
+                                <th>Dispatch Date</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Customers Tab -->
+            <div id="customers" class="tab-section">
+                <div class="page-header">
+                    <h1>Relationship Management</h1>
+                    <p>Analyze and manage your customer community</p>
+                </div>
+                <div class="table-responsive" style="overflow-x: auto;">
+                    <table class="customers-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Profile Name</th>
+                                <th>Email</th>
+                                <th>Contact</th>
+                                <th>Orders</th>
+                                <th>Management</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customers-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>S.S BAGS Admin Suite</h4>
+                    <p>A sophisticated intelligence portal for managing high-quality school bags. Monitor growth, inventory, and customer satisfaction in real-time.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Operations</h4>
+                    <p><i data-feather="server"></i> Status: Optimized</p>
+                    <p><i data-feather="database"></i> Cluster: S.S Primary</p>
+                    <p><i data-feather="clock"></i> Last Update: Just Now</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 S.S BAGS School Bags. Professional Grade Security Enabled <i data-feather="lock" style="width:12px;"></i></p>
+            </div>
+        </footer>
+    </section>
+
+    <!-- Detailed Modal -->
+    <div id="order-detail-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeOrderModal()">&times;</span>
+            <h2>Order Manifest</h2>
+            <div id="order-detail-content" style="margin-top: 20px;"></div>
+            <div class="modal-actions" style="margin-top: 30px; display: flex; gap: 10px;">
+                <select id="order-status-select" class="form-input" style="padding: 10px; border-radius: 8px; border:1px solid var(--border); flex: 1;">
+                    <option value="">Update Logistic Status</option>
+                    <option value="confirmed">Confirm</option>
+                    <option value="shipped">Dispatched</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <button onclick="updateOrderStatus()" class="btn btn-primary">Update Status</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="AdminPannel.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+            }
+        });
+    </script>
+</body>
+</html>
