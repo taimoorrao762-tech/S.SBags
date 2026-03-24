@@ -42,10 +42,10 @@ def get_db_port():
         return 3306
 
 DATABASE_CONFIG = {
-    'host': os.getenv('DB_HOST', 'localhost'),
-    'user': os.getenv('DB_USER', 'root'),
-    'password': os.getenv('DB_PASSWORD', 'root'),
-    'database': os.getenv('DB_NAME', 'ss_bags'),
+    'host': os.getenv('DB_HOST', 'localhost').strip(),
+    'user': os.getenv('DB_USER', 'root').strip(),
+    'password': os.getenv('DB_PASSWORD', 'root').strip(),
+    'database': os.getenv('DB_NAME', 'ss_bags').strip(),
     'port': get_db_port()
 }
 
@@ -123,8 +123,15 @@ app.add_middleware(
 )
 
 # Create uploads directory if it doesn't exist
-os.makedirs("uploads", exist_ok=True)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+UPLOAD_DIR = "uploads"
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+except OSError:
+    # Fallback for Vercel's read-only filesystem
+    UPLOAD_DIR = "/tmp/uploads"
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # ============ MODELS ============
 from pydantic import BaseModel, EmailStr, validator
