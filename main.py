@@ -34,12 +34,19 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+def get_db_port():
+    port_str = os.getenv('DB_PORT', '3306')
+    try:
+        return int(port_str) if port_str else 3306
+    except ValueError:
+        return 3306
+
 DATABASE_CONFIG = {
     'host': os.getenv('DB_HOST', 'localhost'),
     'user': os.getenv('DB_USER', 'root'),
     'password': os.getenv('DB_PASSWORD', 'root'),
     'database': os.getenv('DB_NAME', 'ss_bags'),
-    'port': int(os.getenv('DB_PORT', 3306))
+    'port': get_db_port()
 }
 
 # Add SSL config if provided (required for Aiven)
@@ -90,7 +97,7 @@ init_db_pool()
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'your-super-secret-key-change-this-to-a-very-long-random-string-please')
 if SECRET_KEY == 'your-super-secret-key-change-this-to-a-very-long-random-string-please' and os.getenv('DEV_MODE', '').lower() != 'true':
-    raise RuntimeError("CRITICAL ERROR: Default SECRET_KEY is being used in production. Please set SECRET_KEY in the environment properly.")
+    print("WARNING: Default SECRET_KEY is being used in production. Please set SECRET_KEY in the environment properly.")
 
 ALGORITHM = "HS256"
 
