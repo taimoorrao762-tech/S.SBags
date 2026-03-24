@@ -395,7 +395,11 @@ async function register() {
             alert('Registration successful! Please login.');
             toggleAuth('login');
         } else {
-            alert(data.detail || 'Registration failed');
+            let errorMsg = data.detail;
+            if (Array.isArray(errorMsg)) {
+                errorMsg = errorMsg.map(err => err.msg).join('\\n');
+            }
+            alert(errorMsg || 'Registration failed');
         }
     } catch (error) {
         alert('Error: ' + error.message);
@@ -428,8 +432,11 @@ async function login() {
             showSection('home');
             loadOrders();
         } else {
-            // If the user isn't verified, display custom guidance
-            alert(data.detail || 'Login failed');
+            let errorMsg = data.detail;
+            if (Array.isArray(errorMsg)) {
+                errorMsg = errorMsg.map(err => err.msg).join(', ');
+            }
+            alert(errorMsg || 'Login failed');
         }
     } catch (error) {
         alert('Error: ' + error.message);
@@ -489,7 +496,11 @@ async function resetPassword() {
             alert('Password reset successfully! Please login with your new password.');
             toggleAuth('login');
         } else {
-            alert(data.detail || 'Password reset failed');
+            let errorMsg = data.detail;
+            if (Array.isArray(errorMsg)) {
+                errorMsg = errorMsg.map(err => err.msg).join('\\n');
+            }
+            alert(errorMsg || 'Password reset failed');
         }
     } catch (error) {
         alert('Error: ' + error.message);
