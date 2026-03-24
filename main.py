@@ -45,23 +45,48 @@ DATABASE_CONFIG = {
 # Add SSL config if provided (required for Aiven)
 ssl_ca = os.getenv('DB_SSL_CA')
 if ssl_ca:
-    DATABASE_CONFIG['ssl_ca'] = ssl_ca
+    # Handling SSL for Aiven (Vercel environments often provide CA as a string)
+    if "-----BEGIN CERTIFICATE-----" in ssl_ca:
+        ca_path = "/tmp/ca.pem"
+        try:
+            with open(ca_path, "w") as f:
+                f.write(ssl_ca)
+            DATABASE_CONFIG['ssl_ca'] = ca_path
+        except Exception as e:
+            print(f"Warning: Could not write CA certificate to {ca_path}: {e}")
+    else:
+        DATABASE_CONFIG['ssl_ca'] = ssl_ca
+    
     # Aiven often requires verify_identity as well
     if os.getenv('DB_SSL_VERIFY_IDENTITY', 'false').lower() == 'true':
         DATABASE_CONFIG['ssl_verify_identity'] = True
 
-# Initialize connection pool
-try:
-    db_pool = MySQLConnectionPool(
-        pool_name="mypool",
-        pool_size=10,  # Adjust based on expected concurrent users
-        pool_reset_session=True,
-        **DATABASE_CONFIG
-    )
-    print("Database connection pool created successfully")
-except Error as e:
-    print(f"Error creating connection pool: {e}")
-    exit(1)
+# Initialize connection pool globally
+db_pool = None
+
+def init_db_pool():
+    global db_pool
+    # Only initialize if not already initialized
+    if db_pool is not None:
+        return db_pool
+
+    try:
+        db_pool = MySQLConnectionPool(
+            pool_name="mypool",
+            pool_size=10,
+            pool_reset_session=True,
+            **DATABASE_CONFIG
+        )
+        print("Database connection pool created successfully")
+        return db_pool
+    except Error as e:
+        print(f"Error creating connection pool: {e}")
+        # We don't exit(1) here because it crashes the Vercel function
+        # Instead, we let get_db handle the error
+        return None
+
+# Initial attempt to create pool
+init_db_pool()
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'your-super-secret-key-change-this-to-a-very-long-random-string-please')
 if SECRET_KEY == 'your-super-secret-key-change-this-to-a-very-long-random-string-please' and os.getenv('DEV_MODE', '').lower() != 'true':
@@ -159,12 +184,19 @@ class UpdateOrderStatus(BaseModel):
 
 # ============ DATABASE CONNECTION ============
 def get_db():
+    global db_pool
+    if db_pool is None:
+        # Try to re-initialize if it failed before
+        db_pool = init_db_pool()
+        if db_pool is None:
+            raise HTTPException(status_code=500, detail="Database connection pool not initialized. Check your environment variables and Aiven connection.")
+    
     try:
         conn = db_pool.get_connection()
-        conn.autocommit = False  # Disable autocommit for transaction control
+        conn.autocommit = False
         return conn
     except Error as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database connection error: {str(e)}")
 
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
